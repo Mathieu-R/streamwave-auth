@@ -8,10 +8,10 @@ async function sendMail(email, options) {
   let transporterOptions;
   if (production) {
     transporterOptions = {
-      host: process.env.MAIL_HOST_PROD
-      port: process.env.MAIL_PORT_PROD
-      secure: true
-      ignoreTLS: false
+      host: process.env.MAIL_HOST_PROD,
+      port: process.env.MAIL_PORT_PROD,
+      secure: true,
+      ignoreTLS: false,
       auth: {
         user: process.env.MAIL_USER_PROD,
         pass: process.env.MAIL_PASSWORD_PROD

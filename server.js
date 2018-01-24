@@ -51,7 +51,7 @@ router.post('/local/register', validateRegister, register);
 router.get('local/account/validate', validateToken, validateAccount);
 router.post('/local/login', validateLogin, login);
 router.post('/local/account/reset/get-reset-token', validateToken, getResetToken);
-router.get('/local/account/reset/check-reset-token'), validateResetToken, checkResetToken);
+router.get('/local/account/reset/check-reset-token', validateToken, checkResetToken);
 router.post('/local/account/reset/change-password', validateToken, validateResetPassword, resetPassword);
 
 router.get('/google/login', validateOauth2IdTokenInAuthorizationHeader, handleGoogleLogin);

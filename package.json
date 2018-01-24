@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
     "prod": "NODE_ENV=production node server.js",
-    "dev:clean": "node utils/clean-db.js"
+    "dev:clean": "node utils/clean-db.js",
+    "security-check": "nsp check",
+    "shrinkwrap": "npm shrinkwrap"
   },
   "repository": {
     "type": "git",
@@ -45,6 +47,7 @@
     "passwordless-redisstore": "^1.0.2"
   },
   "devDependencies": {
-    "nodemon": "^1.14.11"
+    "nodemon": "^1.14.11",
+    "nsp": "^3.1.0"
   }
 }
