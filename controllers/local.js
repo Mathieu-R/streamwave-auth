@@ -4,9 +4,8 @@ const path = require('path');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const crypto = require('crypto');
-const nodemail = require('nodemailer');
-const handlebars = require('handlebars');
 const UserAccount = require('../models/UserAccount');
+const sendMail = require('../utils/sendMail');
 const production = process.env.NODE_ENV === 'production';
 
 passport.use(new LocalStrategy({
@@ -42,13 +41,7 @@ function register(req, res) {
 }
 
 async function createAccount(req, res) {
-  const {username, email, password} = req.body;
-
-  const existingUser = await UserAccount.findOne({username});
-  if (existingUser) {
-    res.status(400).json({message: `Le nom d'utilisateur ${existingUser.username} est déjà utilisé.`});
-    return;
-  }
+  const {email, password} = req.body;
 
   const existingEmail = await UserAccount.findOne({email});
   if (existingEmail) {
@@ -57,7 +50,6 @@ async function createAccount(req, res) {
   }
 
   const user = new UserAccount({
-    username,
     email
   });
 
@@ -154,31 +146,6 @@ function getResetToken (req, res) {
   }).catch(error => res.status(500).json({error: error.message}));
 }
 
-async function sendMail(email, options) {
-  const transporter = nodemail.createTransport({
-    host: production ? process.env.MAIL_HOST_DEV : process.env.MAIL_HOST_PROD,
-    port: production ? process.env.MAIL_PORT_DEV : process.env.MAIL_PORT_PROD,
-    secure: production ? true : false,
-    ignoreTLS: production ? false : true,
-    auth: !production ? {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASSWORD
-    } : false
-  });
-
-  const template = await promisify(fs.readFile)(path.join(__dirname, '../templates/email.hbs'), 'utf-8');
-  const emailHtml = handlebars.compile(template)(options);
-
-  const mailOptions = {
-    from: 'Streamwave <no-reply@streamwave.be>',
-    to: email,
-    subject: options.title,
-    html: emailHtml
-  };
-
-  return transporter.sendMail(mailOptions);
-}
-
 function checkResetToken(req, res) {
   const {token} = req.query;
   UserAccount.findOne({reset_password_token: {content: token}}).then(user => {
@@ -199,7 +166,8 @@ function checkResetToken(req, res) {
 }
 
 function resetPassword(req, res) {
-  const {id, token, password} = req.body;
+  const {token} = req.query;
+  const {password} = req.body;
 
   UserAccount.findOne({reset_password_token: {content: token}}).then(user => {
     if (!user) {
@@ -247,6 +215,5 @@ module.exports = {
   login,
   getResetToken,
   checkResetToken,
-  resetPassword,
-  me
+  resetPassword
 }

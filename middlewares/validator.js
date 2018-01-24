@@ -1,54 +1,55 @@
-function validateRegister(req, res, next) {
-  req.checkBody('username', "Le nom d'utilisateur est vide").notEmpty();
-  req.checkBody('username', "Le nom d'utilisateur doit être compris entre 7 et 32 caractères").len(7, 32);
-  req.checkBody('email', "L'e-mail est vide ou n'est pas valide.").notEmpty();
-  req.checkBody('email', "L'e-mail n'est pas valide (example@example.com).").isEmail();
-  req.checkBody('password', 'Le mot de passe est vide / trop court / trop long.').notEmpty()
-  req.checkBody('password', 'Le mot de passe doit être compris entre 10 et 72 caractères').len(10, 72);
-  //req.checkBody('password', 'Le mot de passe doit contenir au moins 1 majuscule').matches('/[A-Z]/');
-  //req.checkBody('password', 'Le mot de passe doit contenir au moins 1 minuscule').matches('/[a-z]/');
-  //req.checkBody('password', 'Le mot de passe doit contenir au moins 1 chiffre').matches('/[0-9]/');
+const {body, query, header, validationResult} = require('express-validator/check');
 
-  const errors = req.validationErrors();
-  if (errors) {
-    return res.status(500).json({error: errors.map(err => err.msg)});
-  }
+// TODO: Mot de passe => min. 1 majuscule, 1 minuscule, 1 chiffre
+function validateRegister (req, res, next) {
+  body('email', "L'e-mail est vide ou n'est pas valide.").notEmpty();
+  body('email', "L'e-mail n'est pas valide (example@example.com).").isEmail();
+  body('password', 'Le mot de passe est vide / trop court / trop long.').notEmpty()
+  body('password', 'Le mot de passe doit être compris entre 10 et 72 caractères').len(10, 72);
+  //body('password', 'Le mot de passe doit contenir au moins 1 majuscule').matches('/[A-Z]/');
+  //body('password', 'Le mot de passe doit contenir au moins 1 minuscule').matches('/[a-z]/');
+  //body('password', 'Le mot de passe doit contenir au moins 1 chiffre').matches('/[0-9]/');
 
-  next();
+  checkErrors(req, res, next);
 }
 
-function validateLogin(req, res, next) {
-  req.checkBody('email', "L'e-mail est vide ou n'est pas valide.").notEmpty();
-  req.checkBody('email', "L'e-mail n'est pas valide (example@example.com).").isEmail();
-  req.checkBody('password', 'Le mot de passe est vide').notEmpty();
-
-  const errors = req.validationErrors();
-  if (errors) {
-    return res.status(500).json({error: errors.map(err => err.msg)});
-  }
-
-  next();
+function validateToken (req, res, next) {
+  query('token', 'token manquant.').notEmpty();
+  checkErrors(req, res, next);
 }
 
-function validateForgot(req, res, next) {
-  req.checkBody('email', "L'e-mail est vide ou n'est pas valide.").notEmpty();
-  req.checkBody('email', "L'e-mail n'est pas valide (example@example.com).").isEmail();
+function validateLogin (req, res, next) {
+  body('email', "L'e-mail est vide ou n'est pas valide.").notEmpty();
+  body('email', "L'e-mail n'est pas valide (example@example.com).").isEmail();
+  body('password', 'Le mot de passe est vide').notEmpty();
 
-  const errors = req.validationErrors();
-  if (errors) {
-    return res.status(500).json({error: errors.map(err => err.msg)});
-  }
-
-  next();
+  checkErrors(req, res, next);
 }
 
-function validateReset(req, res, next) {
-  req.checkBody('password', 'Le mot de passe est vide / trop court / trop long.').notEmpty()
-  req.checkBody('password', 'Le mot de passe doit être compris entre 8 et 72 caractères').len(8, 72);
+function validateAskingReset (req, res, next) {
+  body('email', "L'e-mail est vide ou n'est pas valide.").notEmpty();
+  body('email', "L'e-mail n'est pas valide (example@example.com).").isEmail();
 
-  const errors = req.validationErrors();
+  checkErrors(req, res, next);
+}
+
+function validateResetPassword (req, res, next) {
+  body('password', 'Le mot de passe est vide / trop court / trop long.').notEmpty()
+  body('password', 'Le mot de passe doit être compris entre 8 et 72 caractères').len(8, 72);
+
+  checkErrors(req, res, next);
+}
+
+function validateOauth2IdTokenInAuthorizationHeader (req, res, next) {
+  header('authorization', 'Le token est manquant dans l\'en-tête authorization.').notEmpty();
+
+  checkErrors(req, res, next);
+}
+
+function checkErrors (req, res, next) {
+  const errors = validationResult(req).array();
   if (errors) {
-    return res.status(500).json({error: errors.map(err => err.msg)});
+    return res.status(400).json({error: errors.map(err => err.msg)});
   }
 
   next();
@@ -56,7 +57,9 @@ function validateReset(req, res, next) {
 
 module.exports = {
   validateRegister,
+  validateToken,
   validateLogin,
-  validateForgot,
-  validateReset
+  validateAskingReset,
+  validateResetPassword,
+  validateOauth2IdTokenInAuthorizationHeader
 }

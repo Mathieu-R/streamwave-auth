@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "prod": "NODE_ENV=production npm run start",
+    "start": "nodemon server.js",
+    "prod": "NODE_ENV=production node server.js",
     "dev:clean": "node utils/clean-db.js"
   },
   "repository": {
@@ -43,5 +43,8 @@
     "passport-local": "^1.0.0",
     "passwordless": "^1.1.2",
     "passwordless-redisstore": "^1.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.11"
   }
 }

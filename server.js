@@ -6,14 +6,20 @@ const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const bodyParser = require('body-parser');
 const mongoose = require('./mongoose');
-const validator = require('express-validator');
 const url = require('url');
 const path = require('path');
 const cors = require('cors');
 
-const {validateLogin, validateRegister, validateForgot, validateReset} = require('./middlewares/validator');
-const {login, register} = require('./controllers/local');
-const {handleGoogleLogin, handleGoogleCallback} = require('./controllers/google');
+const {
+  validateRegister, validateToken, validateLogin,
+  validateAskingReset, validateResetPassword,
+  validateOauth2IdTokenInAuthorizationHeader
+} = require('./middlewares/validator');
+const {
+  register, validateAccount, login,
+  getResetToken, checkResetToken, resetPassword
+} = require('./controllers/local');
+const {handleGoogleLogin} = require('./controllers/google');
 const {logout} = require('./controllers/common');
 
 const app = express();
@@ -36,17 +42,19 @@ const corsOptions = {
 };
 
 // middlewares
-router.use('/static', express.static('./src'));
 router.use(bodyParser.json());
-router.use(validator());
 router.use(passport.initialize());
 
-router.get('/', (req, res) => res.sendFile(path.join(__dirname, '../src/index.html')));
-router.get('/check', (req, res) => res.send('ok'));
-router.get('/google/login', handleGoogleLogin);
-router.get('/oauth2callback', handleGoogleCallback);
+router.get('/health', (req, res) => res.send('authentication api is up !\n'));
+
 router.post('/local/register', validateRegister, register);
+router.get('local/account/validate', validateToken, validateAccount);
 router.post('/local/login', validateLogin, login);
+router.post('/local/account/reset/get-reset-token', validateToken, getResetToken);
+router.get('/local/account/reset/check-reset-token'), validateResetToken, checkResetToken);
+router.post('/local/account/reset/change-password', validateToken, validateResetPassword, resetPassword);
+
+router.get('/google/login', validateOauth2IdTokenInAuthorizationHeader, handleGoogleLogin);
 router.delete('/logout', logout);
 
 app.use(router);
