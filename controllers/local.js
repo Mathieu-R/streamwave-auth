@@ -1,5 +1,4 @@
 const {promisify} = require('util');
-const fs = require('fs');
 const path = require('path');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;

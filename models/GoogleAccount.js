@@ -14,7 +14,7 @@ googleAccountSchema.methods.generateToken = function () {
     id: this.googleId,
     username: this.username,
     email: this.email,
-    avatar: user.avatar   
+    avatar: this.avatar
   }, KEY, {
     expiresIn: '7days'
   });
