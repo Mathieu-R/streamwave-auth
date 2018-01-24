@@ -19,7 +19,7 @@ passport.use(new LocalStrategy({
       if (!user) return done(null, false); // no user
       if (!user.ensureEmailValidated()) { // email not validated
         throw new Error('E-mail non validé. Vérifiez vos e-mails.');
-      }; 
+      };
       return user.verifyPassword(password)
         .then(response => {
           if (response) { // password ok
@@ -51,7 +51,7 @@ async function createAccount(req, res) {
   }
 
   const existingEmail = await UserAccount.findOne({email});
-  if (existingEmail) { 
+  if (existingEmail) {
     res.status(400).json({message: `L'email ${existingEmail.email} est déjà utilisé.`});
     return;
   }
@@ -151,16 +151,16 @@ function getResetToken (req, res) {
     return sendMail(email, options);
   }).then(info => {
     res.status(200).json({success: `Email envoyé avec succès à ${email}.`});
-  }).catch(error => res.status(500).json({error: error.message})); 
+  }).catch(error => res.status(500).json({error: error.message}));
 }
 
 async function sendMail(email, options) {
   const transporter = nodemail.createTransport({
-    host: process.env.MAIL_HOST,
-    port: process.env.MAIL_PORT, // port pour maildev
+    host: production ? process.env.MAIL_HOST_DEV : process.env.MAIL_HOST_PROD,
+    port: production ? process.env.MAIL_PORT_DEV : process.env.MAIL_PORT_PROD,
     secure: production ? true : false,
     ignoreTLS: production ? false : true,
-    auth: process.env.MAIL_USER && process.env.MAIL_PASSWORD ? {
+    auth: !production ? {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASSWORD
     } : false
@@ -170,7 +170,7 @@ async function sendMail(email, options) {
   const emailHtml = handlebars.compile(template)(options);
 
   const mailOptions = {
-    from: 'Streamwave <admin@streamwave.be>',
+    from: 'Streamwave <no-reply@streamwave.be>',
     to: email,
     subject: options.title,
     html: emailHtml

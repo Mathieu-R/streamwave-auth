@@ -1,16 +1,19 @@
-version: '2.0'
+version: '3'
 
 services:
-  mongo: 
+  mongo:
     image: mongo
+    container_name: mongo
     ports:
       - 27017:27018
   redis:
     image: redis
+    container_name: redis
     ports:
       - 6379:6379
   maildev:
     image: djfarrelly/maildev
-    ports: 
-      - 1080:80 
+    container_name: maildev
+    ports:
+      - 1080:80
       - 1025:25
