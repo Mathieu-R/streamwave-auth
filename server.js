@@ -11,9 +11,12 @@ const path = require('path');
 const cors = require('cors');
 
 const {
-  validateRegister, validateToken, validateLogin,
-  validateAskingReset, validateResetPassword,
-  validateOauth2IdTokenInAuthorizationHeader
+  checkAuthInfos,
+  checkToken,
+  checkEmail,
+  checkPassword,
+  checkOauth2IdTokenInAuthorizationHeader,
+  checkErrors
 } = require('./middlewares/validator');
 const {
   register, validateAccount, login,
@@ -47,14 +50,14 @@ router.use(passport.initialize());
 
 router.get('/health', (req, res) => res.send('authentication api is up !\n'));
 
-router.post('/local/register', validateRegister, register);
-router.get('local/account/validate', validateToken, validateAccount);
-router.post('/local/login', validateLogin, login);
-router.post('/local/account/reset/get-reset-token', validateToken, getResetToken);
-router.get('/local/account/reset/check-reset-token', validateToken, checkResetToken);
-router.post('/local/account/reset/change-password', validateToken, validateResetPassword, resetPassword);
+router.post('/local/register', checkAuthInfos, checkErrors, register);
+router.get('/local/account/validate', checkToken, checkErrors, validateAccount);
+router.post('/local/login', checkAuthInfos, checkErrors, login);
+router.post('/local/account/reset/get-reset-token', checkEmail, checkErrors, getResetToken);
+router.get('/local/account/reset/check-reset-token', checkToken, checkErrors, checkResetToken);
+router.post('/local/account/reset/change-password', checkToken, checkPassword, checkErrors, resetPassword);
 
-router.get('/google/login', validateOauth2IdTokenInAuthorizationHeader, handleGoogleLogin);
+router.post('/google/login', checkOauth2IdTokenInAuthorizationHeader, checkErrors, handleGoogleLogin);
 router.delete('/logout', logout);
 
 app.use(router);

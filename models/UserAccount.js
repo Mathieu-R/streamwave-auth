@@ -30,7 +30,7 @@ userAccountSchema.methods.verifyPassword = function (password) {
 }
 
 userAccountSchema.methods.ensureEmailValidated = function () {
-  console.log(this.email_verification_token.validated);
+  return this.email_verification_token.validated;
 }
 
 userAccountSchema.methods.generateToken = function () {
