@@ -44,7 +44,7 @@ async function createAccount(req, res) {
 
   const existingEmail = await UserAccount.findOne({email});
   if (existingEmail) {
-    res.status(400).json({message: `L'email ${existingEmail.email} est déjà utilisé.`});
+    res.status(400).json({error: `L'email ${existingEmail.email} est déjà utilisé.`});
     return;
   }
 
