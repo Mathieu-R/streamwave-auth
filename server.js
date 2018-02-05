@@ -41,10 +41,11 @@ const corsOptions = {
     const u = url.parse(origin);
     cb(null, u.hostname == 'localhost' || u.hostname == '127.0.0.1');
   },
-  allowedHeaders: ['Content-Type']
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 // middlewares
+router.use(cors(corsOptions));
 router.use(bodyParser.json());
 router.use(passport.initialize());
 
