@@ -6,7 +6,7 @@ const KEY = process.env.JWT_SECRET;
 const userAccountSchema = new mongoose.Schema({
   username: {type: String},
   email: {type: String, unique: true, required: true},
-  avatar: {type: String},
+  avatar: {type: String, default: '/assets/svg/ic_face_white_24px.svg'},
   hash: {type: String, required: true},
   email_verification_token: {
     content: {type: String, unique: true},
