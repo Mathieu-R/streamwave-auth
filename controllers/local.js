@@ -85,7 +85,6 @@ function sendVerificationEmail (host, res, user) {
 
 function validateAccount (req, res) {
   const {token} = req.query;
-  UserAccount.find({}).then(user => console.log(user));
   UserAccount.findOne({'email_verification_token.content': token}).then(user => {
     if (!user) return;
 
@@ -148,7 +147,7 @@ function getResetToken (req, res) {
 
     return sendMail(email, options);
   }).then(info => {
-    res.status(200).json({success: `Email envoyé avec succès à ${email}.`});
+    res.status(200).json({message: `Email envoyé avec succès à ${email}.`});
   }).catch(error => {
     res.status(500).json({error: 'Reset account failed !'});
     console.error(error);
