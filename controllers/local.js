@@ -1,5 +1,4 @@
 const {promisify} = require('util');
-const fs = require('fs');
 const path = require('path');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -45,7 +44,7 @@ async function createAccount(req, res) {
 
   const existingEmail = await UserAccount.findOne({email});
   if (existingEmail) {
-    res.status(400).json({message: `L'email ${existingEmail.email} est déjà utilisé.`});
+    res.status(400).json({error: `L'email ${existingEmail.email} est déjà utilisé.`});
     return;
   }
 
@@ -69,7 +68,10 @@ function sendVerificationEmail (host, res, user) {
       content: `
         Bienvenue sur streamwave.
         Veuillez cliquer sur le lien ci-dessous afin d'activer votre compte.`,
-      url: `http://${host}/api/account/validate?token=${token}`,
+      url: production ?
+        `https://auth.streamwave.be/local/account/validate?token=${token}`
+        :
+        `http://${host}:3000/local/account/validate?token=${token}`,
       action: 'Activer mon compte'
     };
 
@@ -83,32 +85,31 @@ function sendVerificationEmail (host, res, user) {
 
 function validateAccount (req, res) {
   const {token} = req.query;
-
-  UserAccount.findOne({email_verification_token: {content: token}}).then(user => {
-    if (!user) res.status(401).send('token does not exist... WELL DONE.');
+  UserAccount.findOne({'email_verification_token.content': token}).then(user => {
+    if (!user) return;
 
     user.email_verification_token.content = null;
     user.email_verification_token.validated = true;
     return user.save();
   }).then(user => {
+    if (!user) return res.status(401).send(`Ce token de vérification de compte n'existe pas.`);
     res.redirect('http://localhost:5000:/login');
   });
 }
 
 function login(req, res) {
   const {email, password} = req.body;
-
   // NOTE
   // passport.authenticate does not support promisify
   // you have to pass req, res to this method
-  passport.authenticate('local',
-    {successRedirect: '/', failureRedirect: '/login'}, (error, user) => {
+  passport.authenticate('local', (error, user) => {
       if (error) {
         return res.status(500).json({error: error.message});
       }
 
       if (!user) {
-        return res.status(204).json({error: 'Utilisateur introuvable !'});
+        // le status 204 ne doit pas être accompagné d'un message !
+        return res.status(204).end();
       }
 
       const token = user.generateToken();
@@ -129,39 +130,47 @@ function getResetToken (req, res) {
     const token = crypto.randomBytes(20).toString('hex');
     user.reset_password_token.content = token;
     user.reset_password_token.expiration = Date.now() + 360000; // 1h
-    return user.save();
-  }).then(user => {
+    user.save();
+    return token;
+  }).then(token => {
     const options = {
       title: 'Réinitialisation du mot de passe',
       content: `Vous recevez ce mail car vous avez perdu votre mot de passe,
         cliquez sur le lien ci-dessous pour changer de mot de passe.
         Dans 1h, ce lien expirera.`,
-      url: `http://${req.hostname}/api/account/reset?token=${token}`,
+      url: production ?
+        `https://auth.streamwave.be/local/account/reset/check-reset-token?token=${token}`
+        :
+        `http://${req.hostname}:3000/local/account/reset/check-reset-token?token=${token}`,
       action: 'Changer de mot de passe'
     };
 
     return sendMail(email, options);
   }).then(info => {
-    res.status(200).json({success: `Email envoyé avec succès à ${email}.`});
-  }).catch(error => res.status(500).json({error: error.message}));
+    res.status(200).json({message: `Email envoyé avec succès à ${email}.`});
+  }).catch(error => {
+    res.status(500).json({error: 'Reset account failed !'});
+    console.error(error);
+  });
 }
 
 function checkResetToken(req, res) {
   const {token} = req.query;
-  UserAccount.findOne({reset_password_token: {content: token}}).then(user => {
+  UserAccount.findOne({'reset_password_token.content': token}).then(user => {
     if (!user) {
-      res.status(204).json({error: 'Token invalide.'});
+      res.status(400).send('Token invalide.');
       return;
     }
 
     if (user.reset_password_expiration < Date.now()) {
-      res.status(400).json({error: 'Token de réinitialisation de mot de passe expiré.'});
+      res.status(400).json('Token de réinitialisation de mot de passe expiré.');
       return;
     }
 
-    res.status(200).json({valid: true});
+    res.redirect(`https://www.streamwave.be/account/reset?token=${token}`);
   }).catch(error => {
-    res.status(500).json({error: error.message});
+    res.status(500).json({error: 'Check token failed.'});
+    console.error(error);
   });
 }
 
@@ -169,9 +178,9 @@ function resetPassword(req, res) {
   const {token} = req.query;
   const {password} = req.body;
 
-  UserAccount.findOne({reset_password_token: {content: token}}).then(user => {
+  UserAccount.findOne({'reset_password_token.content': token}).then(user => {
     if (!user) {
-      res.status(204).json({error: 'Token invalide.'});
+      res.status(400).json({error: 'Token invalide.'});
       return;
     }
 
@@ -187,7 +196,8 @@ function resetPassword(req, res) {
   }).then(_ => {
     res.status(200).json({message: 'Mot de passe changé avec succès !'});
   }).catch(error => {
-    res.status(500).json({error: error.message});
+    res.status(500).json({error: 'Password reset failed.'});
+    console.error(error);
   });
 }
 

@@ -6,7 +6,7 @@ const googleAccountSchema = new mongoose.Schema({
   googleId: {type: String, unique: true},
   username: {type: String, unique: true, required: true},
   email: {type: String, unique: true, required: true},
-  avatar: {type: String}
+  avatar: {type: String, default: '/assets/svg/ic_face_white_24px.svg'}
 });
 
 googleAccountSchema.methods.generateToken = function () {
@@ -14,7 +14,7 @@ googleAccountSchema.methods.generateToken = function () {
     id: this.googleId,
     username: this.username,
     email: this.email,
-    avatar: user.avatar   
+    avatar: this.avatar
   }, KEY, {
     expiresIn: '7days'
   });

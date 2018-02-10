@@ -33,7 +33,6 @@ function handleGoogleLogin (req, res) {
   const authorizationHeader = req.headers.authorization;
   const id_token = authorizationHeader.split(' ')[1];
   authenticateUser(id_token).then(user => {
-    console.log(user);
     const token = user.generateToken();
     res.status(200).json({token});
   }).catch(err => {

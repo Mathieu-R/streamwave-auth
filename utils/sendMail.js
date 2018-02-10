@@ -1,4 +1,5 @@
 const {promisify} = require('util');
+const fs = require('fs');
 const path = require('path');
 const nodemail = require('nodemailer');
 const handlebars = require('handlebars');
@@ -42,6 +43,4 @@ async function sendMail(email, options) {
   return transporter.sendMail(mailOptions);
 }
 
-module.exports = {
-  sendMail
-};
+module.exports = sendMail;

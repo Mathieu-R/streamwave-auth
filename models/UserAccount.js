@@ -4,9 +4,9 @@ const jwt = require('jsonwebtoken');
 const KEY = process.env.JWT_SECRET;
 
 const userAccountSchema = new mongoose.Schema({
-  username: {type: String, unique: true, required: true},
+  username: {type: String},
   email: {type: String, unique: true, required: true},
-  avatar: {type: String},
+  avatar: {type: String, default: '/assets/svg/ic_face_white_24px.svg'},
   hash: {type: String, required: true},
   email_verification_token: {
     content: {type: String, unique: true},
@@ -30,7 +30,7 @@ userAccountSchema.methods.verifyPassword = function (password) {
 }
 
 userAccountSchema.methods.ensureEmailValidated = function () {
-  console.log(this.email_verification_token.validated);
+  return this.email_verification_token.validated;
 }
 
 userAccountSchema.methods.generateToken = function () {

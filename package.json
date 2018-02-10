@@ -4,12 +4,11 @@
   "description": "authentication-api for streamwave",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest test",
     "start": "nodemon server.js",
     "prod": "NODE_ENV=production node server.js",
     "dev:clean": "node utils/clean-db.js",
-    "security-check": "nsp check",
-    "shrinkwrap": "npm shrinkwrap"
+    "security-check": "nsp check"
   },
   "repository": {
     "type": "git",
@@ -33,20 +32,16 @@
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "express-validator": "^4.3.0",
-    "firebase": "^4.8.2",
     "google-auth-library": "^1.0.0",
-    "googleapis": "^23.0.0",
     "handlebars": "^4.0.11",
     "jsonwebtoken": "^8.1.0",
     "mongoose": "^5.0.0-rc2",
     "nodemailer": "^4.4.1",
     "passport": "^0.4.0",
-    "passport-google-oauth20": "^1.0.0",
-    "passport-local": "^1.0.0",
-    "passwordless": "^1.1.2",
-    "passwordless-redisstore": "^1.0.2"
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
+    "jest": "^22.1.4",
     "nodemon": "^1.14.11",
     "nsp": "^3.1.0"
   }
