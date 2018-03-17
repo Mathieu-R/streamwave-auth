@@ -9,7 +9,7 @@ const userAccountSchema = new mongoose.Schema({
   avatar: {type: String, default: '/assets/svg/ic_face_white_24px.svg'},
   hash: {type: String, required: true},
   email_verification_token: {
-    content: {type: String, unique: true},
+    content: {type: String},
     expiration: {type: Date},
     validated: {type: Boolean, required: true, default: false}
   },
