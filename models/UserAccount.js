@@ -14,7 +14,7 @@ const userAccountSchema = new mongoose.Schema({
     validated: {type: Boolean, required: true, default: false}
   },
   reset_password_token: {
-    content: {type: String, unique: true},
+    content: {type: String},
     expiration: {type: Date}
   }
 });
