@@ -12,3 +12,4 @@ before_script:
   - npm install -g jest-cli
 script:
   - jest test --ci --colors && codecov
+  - npm run security-check

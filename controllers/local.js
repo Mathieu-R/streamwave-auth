@@ -80,7 +80,15 @@ function sendVerificationEmail (host, res, user) {
     res.status(200).json({
       message: ['Utilisateur créé avec succès !', 'Vérifier votre e-mail afin d\'activer votre compte']
     });
-  }).catch(err => console.error(err));
+  }).catch(err => {
+    // remove user account
+    // if for some reason, api is not able
+    // to send an account verification email
+    User.findOneAndRemove({email})
+      .then(_ => {})
+      .catch(err => console.error(err));
+    console.error(err);
+  });
 }
 
 function validateAccount (req, res) {
@@ -92,9 +100,17 @@ function validateAccount (req, res) {
     user.email_verification_token.validated = true;
     return user.save();
   }).then(user => {
-    if (!user) return res.status(401).send(`Ce token de vérification de compte n'existe pas.`);
-    res.redirect('http://localhost:5000:/login');
-  });
+    console.log(user);
+    if (!user) {
+      res.status(401).send(`Ce token de vérification de compte n'existe pas.`);
+      return;
+    }
+    const url = production ? 'https://www.steamwave.be/auth/login' : 'http://localhost:8080/auth/login';
+    res.redirect(url);
+  }).catch(err => {
+    res.status(500).json({err: 'Erreur lors de la validation du compte.'});
+    console.error(err);
+  })
 }
 
 function login(req, res) {
@@ -167,7 +183,8 @@ function checkResetToken(req, res) {
       return;
     }
 
-    res.redirect(`https://www.streamwave.be/account/reset?token=${token}`);
+    const url = production ? `https://www.streamwave.be/account/reset?token=${token}` : `http://localhost:8080/account/reset?token=${token}`
+    res.redirect();
   }).catch(error => {
     res.status(500).json({error: 'Check token failed.'});
     console.error(error);
