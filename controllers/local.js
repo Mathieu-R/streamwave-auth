@@ -105,7 +105,7 @@ function validateAccount (req, res) {
       res.status(401).send(`Ce token de vérification de compte n'existe pas.`);
       return;
     }
-    const url = production ? 'https://www.steamwave.be/auth/login' : 'http://localhost:5000:/auth/login';
+    const url = production ? 'https://www.steamwave.be/auth/login' : 'http://localhost:8080/auth/login';
     res.redirect(url);
   }).catch(err => {
     res.status(500).json({err: 'Erreur lors de la validation du compte.'});
@@ -183,7 +183,8 @@ function checkResetToken(req, res) {
       return;
     }
 
-    res.redirect(`https://www.streamwave.be/account/reset?token=${token}`);
+    const url = production ? `https://www.streamwave.be/account/reset?token=${token}` : `http://localhost:8080/account/reset?token=${token}`
+    res.redirect();
   }).catch(error => {
     res.status(500).json({error: 'Check token failed.'});
     console.error(error);
