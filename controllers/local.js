@@ -82,7 +82,7 @@ function sendVerificationEmail (host, res, user) {
     });
   }).catch(err => {
     // remove user account
-    // if for same reason, api is not able
+    // if for some reason, api is not able
     // to send an account verification email
     User.findOneAndRemove({email})
       .then(_ => {})
@@ -100,9 +100,17 @@ function validateAccount (req, res) {
     user.email_verification_token.validated = true;
     return user.save();
   }).then(user => {
-    if (!user) return res.status(401).send(`Ce token de vérification de compte n'existe pas.`);
-    res.redirect('http://localhost:5000:/login');
-  });
+    console.log(user);
+    if (!user) {
+      res.status(401).send(`Ce token de vérification de compte n'existe pas.`);
+      return;
+    }
+    const url = production ? 'https://www.steamwave.be/auth/login' : 'http://localhost:5000:/auth/login';
+    res.redirect(url);
+  }).catch(err => {
+    res.status(500).json({err: 'Erreur lors de la validation du compte.'});
+    console.error(err);
+  })
 }
 
 function login(req, res) {
