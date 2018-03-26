@@ -80,7 +80,15 @@ function sendVerificationEmail (host, res, user) {
     res.status(200).json({
       message: ['Utilisateur créé avec succès !', 'Vérifier votre e-mail afin d\'activer votre compte']
     });
-  }).catch(err => console.error(err));
+  }).catch(err => {
+    // remove user account
+    // if for same reason, api is not able
+    // to send an account verification email
+    User.findOneAndRemove({email})
+      .then(_ => {})
+      .catch(err => console.error(err));
+    console.error(err);
+  });
 }
 
 function validateAccount (req, res) {
