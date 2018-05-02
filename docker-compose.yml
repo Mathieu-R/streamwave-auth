@@ -3,17 +3,17 @@ version: '3'
 services:
   mongo:
     image: mongo
-    container_name: mongo
+    #container_name: mongo
     ports:
       - "27017:27017"
   redis:
     image: redis
-    container_name: redis
+    #container_name: redis
     ports:
       - "6379:6379"
   maildev:
     image: djfarrelly/maildev
-    container_name: maildev
+    #container_name: maildev
     ports:
       - "1025:25"
       - "1080:80"

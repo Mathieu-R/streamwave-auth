@@ -100,7 +100,6 @@ function validateAccount (req, res) {
     user.email_verification_token.validated = true;
     return user.save();
   }).then(user => {
-    console.log(user);
     if (!user) {
       res.status(401).send(`Ce token de vérification de compte n'existe pas.`);
       return;
@@ -172,6 +171,7 @@ function getResetToken (req, res) {
 
 function checkResetToken(req, res) {
   const {token} = req.query;
+
   UserAccount.findOne({'reset_password_token.content': token}).then(user => {
     if (!user) {
       res.status(400).send('Token invalide.');
