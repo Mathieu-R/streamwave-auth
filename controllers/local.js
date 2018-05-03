@@ -44,7 +44,8 @@ async function createAccount(req, res) {
 
   const existingEmail = await UserAccount.findOne({email});
   if (existingEmail) {
-    res.status(400).json({error: `L'email ${existingEmail.email} est déjà utilisé.`});
+    // https://stackoverflow.com/questions/12658574/rest-api-design-post-to-create-with-duplicate-data-would-be-integrityerror-500
+    res.status(409).json({error: `L'email ${existingEmail.email} est déjà utilisé.`});
     return;
   }
 
@@ -100,7 +101,6 @@ function validateAccount (req, res) {
     user.email_verification_token.validated = true;
     return user.save();
   }).then(user => {
-    console.log(user);
     if (!user) {
       res.status(401).send(`Ce token de vérification de compte n'existe pas.`);
       return;
@@ -172,6 +172,7 @@ function getResetToken (req, res) {
 
 function checkResetToken(req, res) {
   const {token} = req.query;
+
   UserAccount.findOne({'reset_password_token.content': token}).then(user => {
     if (!user) {
       res.status(400).send('Token invalide.');
