@@ -44,7 +44,8 @@ async function createAccount(req, res) {
 
   const existingEmail = await UserAccount.findOne({email});
   if (existingEmail) {
-    res.status(400).json({error: `L'email ${existingEmail.email} est déjà utilisé.`});
+    // https://stackoverflow.com/questions/12658574/rest-api-design-post-to-create-with-duplicate-data-would-be-integrityerror-500
+    res.status(409).json({error: `L'email ${existingEmail.email} est déjà utilisé.`});
     return;
   }
 
