@@ -85,8 +85,8 @@ function sendVerificationEmail (host, res, user) {
     // remove user account
     // if for some reason, api is not able
     // to send an account verification email
-    User.findOneAndRemove({email})
-      .then(_ => {})
+    UserAccount.findOneAndRemove({email})
+      .then(_ => res.status(500).json({err: 'Problème lors de l\'envoi du mail de vérification.'})
       .catch(err => console.error(err));
     console.error(err);
   });
