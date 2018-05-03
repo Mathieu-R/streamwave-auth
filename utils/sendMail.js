@@ -13,6 +13,12 @@ async function sendMail(email, options) {
       port: process.env.MAIL_PORT_PROD,
       secure: true,
       ignoreTLS: false,
+      tls: {
+        // ovh seems to reject me
+        // if I do not do that
+        // https://github.com/nodemailer/nodemailer/issues/342
+        rejectUnauthorized: false
+      },
       auth: {
         user: process.env.MAIL_USER_PROD,
         pass: process.env.MAIL_PASSWORD_PROD

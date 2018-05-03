@@ -88,7 +88,7 @@ function sendVerificationEmail (host, res, user) {
     UserAccount.findOneAndRemove({email})
       // https://stackoverflow.com/questions/30715604/http-status-code-for-failed-email-send
       // since user is not created when email fail => error 422
-      .then(_ => res.status(422).json({err: 'Problème lors de l\'envoi du mail de vérification.'}))
+      .then(_ => res.status(422).json({error: 'Problème lors de l\'envoi du mail de vérification.'}))
       .catch(err => console.error(err));
     console.error(err);
   });
