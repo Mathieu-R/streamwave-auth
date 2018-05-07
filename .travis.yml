@@ -7,6 +7,7 @@ services:
   - mongodb
 install:
   - npm install --save cors
+  - npm install --save rr-guerrillamail
   - npm install -g codecov
 before_script:
   - npm install -g jest-cli
