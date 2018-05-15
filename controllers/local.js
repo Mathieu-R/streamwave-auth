@@ -182,7 +182,9 @@ function checkResetToken(req, res) {
     }
 
     if (user.reset_password_expiration < Date.now()) {
-      res.status(400).json('Token de réinitialisation de mot de passe expiré.');
+      console.log(user.reset_password_expiration);
+      console.log(Date.now());
+      res.status(400).send('Token de réinitialisation de mot de passe expiré.');
       return;
     }
 
