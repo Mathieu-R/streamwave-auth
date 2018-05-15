@@ -186,7 +186,7 @@ function checkResetToken(req, res) {
       return;
     }
 
-    const url = production ? `https://www.streamwave.be/account/reset?token=${token}` : `http://localhost:8080/account/reset?token=${token}`
+    const url = production ? `https://www.streamwave.be/auth/reset/${token}` : `http://localhost:8080/auth/reset/${token}`
     res.redirect(url);
   }).catch(error => {
     res.status(500).json({error: 'Check token failed.'});
