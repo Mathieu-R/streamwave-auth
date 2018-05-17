@@ -140,7 +140,7 @@ function getResetToken (req, res) {
   // récupération de l'utilisateur
   UserAccount.findOne({email}).then(user => {
     if (!user) {
-      res.status(204).json({error: "Cet e-mail n'appartient à aucun compte utilisateur."});
+      res.status(204).json({error: 'Cet e-mail n\'appartient à aucun compte utilisateur.'});
       return;
     }
 
@@ -151,6 +151,10 @@ function getResetToken (req, res) {
     user.save();
     return token;
   }).then(token => {
+    if (!token) {
+      return;
+    }
+
     const options = {
       title: 'Réinitialisation du mot de passe',
       content: `Vous recevez ce mail car vous avez perdu votre mot de passe,
@@ -165,6 +169,10 @@ function getResetToken (req, res) {
 
     return sendMail(email, options);
   }).then(info => {
+    if (!info) {
+      return;
+    }
+
     res.status(200).json({message: `Email envoyé avec succès à ${email}.`});
   }).catch(error => {
     res.status(500).json({error: 'Reset account failed !'});
@@ -181,9 +189,7 @@ function checkResetToken(req, res) {
       return;
     }
 
-    if (user.reset_password_expiration < Date.now()) {
-      console.log(user.reset_password_expiration);
-      console.log(Date.now());
+    if (user.reset_password_token.expiration < Date.now()) {
       res.status(400).send('Token de réinitialisation de mot de passe expiré.');
       return;
     }
@@ -206,16 +212,20 @@ function resetPassword(req, res) {
       return;
     }
 
-    if (user.reset_password_expiration < Date.now()) {
+    if (user.reset_password_token.expiration < Date.now()) {
       res.status(400).json({error: 'Token de réinitialisation de mot de passe expiré.'});
       return;
     }
 
     // invalidate token and expiration
-    user.reset_password_token = null;
-    user.reset_password_expiration = null;
+    user.reset_password_token.content = null;
+    user.reset_password_token.expiration = null;
     return user.hashPassword(password).then(_ => user.save());
-  }).then(_ => {
+  }).then(user => {
+    if (!user) {
+      return;
+    }
+
     res.status(200).json({message: 'Mot de passe changé avec succès !'});
   }).catch(error => {
     res.status(500).json({error: 'Password reset failed.'});
