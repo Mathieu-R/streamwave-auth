@@ -26,3 +26,10 @@ Some credentials for Google Oauth2 : https://console.cloud.google.com/apis/crede
 `MAIL_HOST_PROD`: host url for mail (ex: smtp.example.com).    
 `MAIL_PORT_PROD`: smtp port for mail.    
 `MAIL_USER_PROD` and `MAIL_PASSWORD_PROD`: credentials of the email that will send the emails (account verification, password forgotten,...).    
+
+### Caveats
+> In developpement
+- You need `maildev` to catch mails.
+
+`MAIL_HOST_DEV`: host url for mail (ex: localhost).    
+`MAIL_PORT_DEV`: smtp port for mail (ex: 1025 for maildev).    
